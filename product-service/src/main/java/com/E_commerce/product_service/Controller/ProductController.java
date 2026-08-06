@@ -1,20 +1,20 @@
 package com.E_commerce.product_service.Controller;
 
 import com.E_commerce.product_service.DTO.CreateRequest;
+import com.E_commerce.product_service.DTO.ProductResponse;
 import com.E_commerce.product_service.Service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/product")
 public class ProductController {
 
-    private ProductService productService;
-    public ProductController(ProductService productService){
-        this.productService=productService;
-    }
+    private final ProductService productService;
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public void createProduct(@RequestBody CreateRequest request){
@@ -22,5 +22,8 @@ public class ProductController {
     }
 
     @GetMapping
-
+    @ResponseStatus(HttpStatus.OK)
+    public List<ProductResponse> findAllProduct(){
+        return productService.findAllProduct();
+    }
 }
