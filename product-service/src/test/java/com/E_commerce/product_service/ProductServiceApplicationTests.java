@@ -1,8 +1,12 @@
 package com.E_commerce.product_service;
 
 import com.E_commerce.product_service.DTO.ProductRequest;
+import com.E_commerce.product_service.Model.Product;
+import com.E_commerce.product_service.Repository.ProductRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -18,6 +22,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.mongodb.MongoDBContainer;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -31,14 +36,22 @@ class ProductServiceApplicationTests {
 
     @Autowired
     private MockMvc mockMvc;
-
+    @Autowired
     private ObjectMapper objectMapper;
+
+    @Autowired
+    private ProductRepository productRepository;
 
     @DynamicPropertySource
     static void setProperties(DynamicPropertyRegistry dynamicPropertyRegistry){
         dynamicPropertyRegistry.add("spring.data.mongodb.uri",mongoDBContainer::getReplicaSetUrl);
     }
 
+    @BeforeEach
+    void setup(){
+
+        productRepository.deleteAll();
+    }
 	@Test
 	void testCreateProduct() throws Exception {
         ProductRequest productRequest=getProductRequest();
@@ -47,6 +60,7 @@ class ProductServiceApplicationTests {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(productString)
         ).andExpect(status().isCreated());
+        Assertions.assertEquals(1,productRepository.findAll().size());
 	}
 
     private ProductRequest getProductRequest() {
@@ -55,6 +69,20 @@ class ProductServiceApplicationTests {
                 .description("Laptop")
                 .price(BigDecimal.valueOf(50000))
                 .build();
+    }
+
+    @Test
+    void testGetProduct() throws Exception {
+        Product product = Product.builder()
+                .name("Laptop")
+                .description("Laptop")
+                .price(BigDecimal.valueOf(50000))
+                .build();
+        productRepository.save(product);
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/product")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+        Assertions.assertEquals(1,productRepository.findAll().size());
     }
 
 }
