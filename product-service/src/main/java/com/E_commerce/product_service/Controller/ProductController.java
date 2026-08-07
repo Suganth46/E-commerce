@@ -1,6 +1,6 @@
 package com.E_commerce.product_service.Controller;
 
-import com.E_commerce.product_service.DTO.CreateRequest;
+import com.E_commerce.product_service.DTO.ProductRequest;
 import com.E_commerce.product_service.DTO.ProductResponse;
 import com.E_commerce.product_service.Service.ProductService;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +17,7 @@ public class ProductController {
     private final ProductService productService;
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public void createProduct(@RequestBody CreateRequest request){
+    public void createProduct(@RequestBody ProductRequest request){
         productService.createProduct(request);
     }
 

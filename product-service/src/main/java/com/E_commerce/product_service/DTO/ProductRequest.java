@@ -9,7 +9,7 @@ import java.math.BigDecimal;
 @Getter
 @Setter
 @AllArgsConstructor
-public class CreateRequest {
+public class ProductRequest {
     private String name;
     private String description;
     private BigDecimal price;
