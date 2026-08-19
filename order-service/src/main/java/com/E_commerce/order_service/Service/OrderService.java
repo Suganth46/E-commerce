@@ -35,15 +35,15 @@ public class OrderService {
         .map(this::mapToDto)
         .toList();
 
-        List<String> sukCodes=order.getOrderLineItems()
+        order.setOrderLineItems(orderLineItems);
+        List<String> skuCodes=order.getOrderLineItems()
         .stream()
         .map(OrderLineItems::getSkucode)
         .toList();
 
-        order.setOrderLineItems(orderLineItems);
         // Call Inventory Service if the product is availabe in stock
        InventoryResponse[] inventoryResponsesArray=webClient.get()
-        .uri("http://localhost:8082/api/inventory", UriBuilder -> UriBuilder.queryParam("sukCode", sukCodes).build())
+        .uri("http://localhost:8082/api/inventory", UriBuilder -> UriBuilder.queryParam("skuCode", skuCodes).build())
         .retrieve()
         .bodyToMono(InventoryResponse[].class)
         .block();
