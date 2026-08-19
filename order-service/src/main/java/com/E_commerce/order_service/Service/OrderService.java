@@ -1,5 +1,6 @@
 package com.E_commerce.order_service.Service;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -7,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriBuilder;
 
+import com.E_commerce.order_service.DTO.InventoryResponse;
 import com.E_commerce.order_service.DTO.OrderLineItemsDto;
 import com.E_commerce.order_service.DTO.OrderRequest;
 import com.E_commerce.order_service.Model.Order;
@@ -40,11 +42,13 @@ public class OrderService {
 
         order.setOrderLineItems(orderLineItems);
         // Call Inventory Service if the product is availabe in stock
-        Boolean result=webClient.get()
+       InventoryResponse[] inventoryResponsesArray=webClient.get()
         .uri("http://localhost:8082/api/inventory", UriBuilder -> UriBuilder.queryParam("sukCode", sukCodes).build())
         .retrieve()
-        .bodyToMono(Boolean.class)
+        .bodyToMono(InventoryResponse[].class)
         .block();
+        Boolean result=Arrays.stream(inventoryResponsesArray)
+        .allMatch(InventoryResponse::getIsInStock);
         if (result) {
             orderRepository.save(order);
             log.info("Order {} saved",order.getOrderNumber());
