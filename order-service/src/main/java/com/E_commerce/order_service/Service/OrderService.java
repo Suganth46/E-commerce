@@ -47,8 +47,13 @@ public class OrderService {
         .retrieve()
         .bodyToMono(InventoryResponse[].class)
         .block();
-        Boolean result=Arrays.stream(inventoryResponsesArray)
-        .allMatch(InventoryResponse::getIsInStock);
+        Boolean result=orderLineItems.stream().allMatch(
+            o-> Arrays.stream(inventoryResponsesArray)
+                .anyMatch(inventory->
+                   inventory.getSukCode().equals(o.getSkucode()) 
+                   && inventory.getQuantity()>=o.getQuantity()
+                )
+        );
         if (result) {
             orderRepository.save(order);
             log.info("Order {} saved",order.getOrderNumber());
