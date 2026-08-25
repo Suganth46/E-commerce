@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.List;
 
 
@@ -19,14 +20,21 @@ public class ProductService {
     private final ProductRepository productRepository;
 
 
-    public void createProduct(ProductRequest request){
+    public ProductResponse createProduct(ProductRequest request){
         Product product= Product.builder()
                 .name(request.getName())
+                .skuCode(request.getSkuCode())
                 .price(request.getPrice())
                 .description(request.getDescription())
+                .brand(request.getBrand())
+                .category(request.getCategory())
+                .createdAt(Instant.now())
+                .updatedAt(Instant.now())
+                .active(true)
                 .build();
         productRepository.save(product);
         log.info("Product {} saved",product.getId());
+        return mapToProductResponse(product);
     }
 
     public List<ProductResponse> findAllProduct() {
@@ -39,6 +47,9 @@ public class ProductService {
                 .name(product.getName())
                 .description(product.getDescription())
                 .price(product.getPrice())
+                .createdAt(product.getCreatedAt())
+                .category(product.getCategory())
+                .brand(product.getBrand())
                 .build();
     }
 }

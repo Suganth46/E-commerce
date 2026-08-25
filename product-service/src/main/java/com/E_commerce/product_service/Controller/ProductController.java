@@ -5,6 +5,7 @@ import com.E_commerce.product_service.DTO.ProductResponse;
 import com.E_commerce.product_service.Service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,8 +18,8 @@ public class ProductController {
     private final ProductService productService;
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public void createProduct(@RequestBody ProductRequest request){
-        productService.createProduct(request);
+    public ProductResponse createProduct(@Validated @RequestBody ProductRequest request){
+        return productService.createProduct(request);
     }
 
     @GetMapping

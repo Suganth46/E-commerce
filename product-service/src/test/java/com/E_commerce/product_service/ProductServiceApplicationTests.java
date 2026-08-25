@@ -66,6 +66,7 @@ class ProductServiceApplicationTests {
     private ProductRequest getProductRequest() {
         return ProductRequest.builder()
                 .name("Laptop")
+                .skuCode("Laptop")
                 .description("Laptop")
                 .price(BigDecimal.valueOf(50000))
                 .build();
@@ -76,6 +77,7 @@ class ProductServiceApplicationTests {
         Product product = Product.builder()
                 .name("Laptop")
                 .description("Laptop")
+                .skuCode("Laptop")
                 .price(BigDecimal.valueOf(50000))
                 .build();
         productRepository.save(product);
