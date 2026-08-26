@@ -1,16 +1,19 @@
 package com.E_commerce.product_service.Service;
 
+import com.E_commerce.product_service.Config.ProductPaginationProperties;
 import com.E_commerce.product_service.DTO.ProductRequest;
 import com.E_commerce.product_service.DTO.ProductResponse;
 import com.E_commerce.product_service.Model.Product;
 import com.E_commerce.product_service.Repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.util.List;
-
 
 @Slf4j
 @Service
@@ -18,6 +21,7 @@ import java.util.List;
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final ProductPaginationProperties paginationProperties;
 
 
     public ProductResponse createProduct(ProductRequest request){
@@ -37,9 +41,13 @@ public class ProductService {
         return mapToProductResponse(product);
     }
 
-    public List<ProductResponse> findAllProduct() {
-        List<Product> products=productRepository.findAll();
-        return products.stream().map(this::mapToProductResponse).toList();
+    public Page<ProductResponse> findAllProduct(int page, int size) {
+        int maxPageSize=paginationProperties.getMaxPageSize();
+        if(size>maxPageSize){
+            size=maxPageSize;
+        }
+        Pageable pageable=PageRequest.of(page, size);
+        return productRepository.findAll(pageable).map(this::mapToProductResponse);
     }
 
     private ProductResponse mapToProductResponse(Product product) {

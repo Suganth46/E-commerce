@@ -4,6 +4,8 @@ import com.E_commerce.product_service.DTO.ProductRequest;
 import com.E_commerce.product_service.DTO.ProductResponse;
 import com.E_commerce.product_service.Service.ProductService;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -24,7 +26,7 @@ public class ProductController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<ProductResponse> findAllProduct(){
-        return productService.findAllProduct();
+    public Page<ProductResponse> findAllProduct(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size){
+        return productService.findAllProduct(page,size);
     }
 }
