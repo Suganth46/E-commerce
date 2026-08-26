@@ -3,6 +3,7 @@ package com.E_commerce.product_service.Service;
 import com.E_commerce.product_service.Config.ProductPaginationProperties;
 import com.E_commerce.product_service.DTO.ProductRequest;
 import com.E_commerce.product_service.DTO.ProductResponse;
+import com.E_commerce.product_service.Exception.ProductNotFoundException;
 import com.E_commerce.product_service.Model.Product;
 import com.E_commerce.product_service.Repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
@@ -52,6 +53,7 @@ public class ProductService {
 
     private ProductResponse mapToProductResponse(Product product) {
         return  ProductResponse.builder()
+                .id(product.getId())
                 .name(product.getName())
                 .description(product.getDescription())
                 .price(product.getPrice())
@@ -59,5 +61,15 @@ public class ProductService {
                 .category(product.getCategory())
                 .brand(product.getBrand())
                 .build();
+    }
+
+    public ProductResponse findProductById(String id) {
+        Product product=productRepository.findById(id)
+        .orElseThrow(() ->
+                new ProductNotFoundException(
+                        "Product not found with id: " + id
+                )
+        );
+        return mapToProductResponse(product);
     }
 }

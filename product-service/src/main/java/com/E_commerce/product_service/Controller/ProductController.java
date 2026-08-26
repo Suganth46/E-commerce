@@ -7,10 +7,11 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+
 
 @RestController
 @RequiredArgsConstructor
@@ -19,14 +20,20 @@ public class ProductController {
 
     private final ProductService productService;
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public ProductResponse createProduct(@Validated @RequestBody ProductRequest request){
-        return productService.createProduct(request);
+    public ResponseEntity<ProductResponse> createProduct(@Validated @RequestBody ProductRequest request){
+       ProductResponse productResponse=productService.createProduct(request);
+       return ResponseEntity.status(HttpStatus.CREATED).body(productResponse);
     }
 
     @GetMapping
-    @ResponseStatus(HttpStatus.OK)
-    public Page<ProductResponse> findAllProduct(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size){
-        return productService.findAllProduct(page,size);
+    public ResponseEntity<Page<ProductResponse>> findAllProduct(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size){
+        Page<ProductResponse>  products=productService.findAllProduct(page,size);
+        return ResponseEntity.ok(products);
     }
+
+    @GetMapping("/{id}") 
+    public ResponseEntity<ProductResponse> findProductById(@PathVariable String id){
+        ProductResponse productResponse=productService.findProductById(id);
+        return ResponseEntity.ok(productResponse);
+    } 
 }
