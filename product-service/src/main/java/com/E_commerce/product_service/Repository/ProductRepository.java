@@ -11,4 +11,8 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 public interface ProductRepository extends MongoRepository<Product,String> {
 
     Page<Product> findByActiveTrue(Pageable pageable);
+
+    boolean existsBySkuCode(String skuCode);
+
+    boolean existsBySkuCodeAndIdNot(String skuCode, String id);
 }

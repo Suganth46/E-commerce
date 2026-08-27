@@ -26,8 +26,8 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorMessage> handleGeneralException(Exception ex){
         ErrorMessage errorMessage=ErrorMessage.builder()
         .code("INTERNAL_SERVER_ERROR")
-        .message(ex.getMessage())
-        // .message("An unexpected error occurred")
+        // .message(ex.getMessage())
+        .message("An unexpected error occurred")
         .timeStamp(Instant.now())
         .build();
 
@@ -51,5 +51,15 @@ public class GlobalExceptionHandler {
         .timeStamp(Instant.now())
         .build();
         return ResponseEntity.badRequest().body(errorMessage);
+    }
+
+    @ExceptionHandler(DuplicateSkuException.class)
+    public ResponseEntity<ErrorMessage> handleDuplicateSku(DuplicateSkuException ex){
+        ErrorMessage errorMessage=ErrorMessage.builder()
+        .code("CONFLICT_ERROR")
+        .message(ex.getMessage())
+        .timeStamp(Instant.now())
+        .build();
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(errorMessage);
     }
 }

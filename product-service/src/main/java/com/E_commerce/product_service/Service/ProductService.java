@@ -3,6 +3,7 @@ package com.E_commerce.product_service.Service;
 import com.E_commerce.product_service.Config.ProductPaginationProperties;
 import com.E_commerce.product_service.DTO.ProductRequest;
 import com.E_commerce.product_service.DTO.ProductResponse;
+import com.E_commerce.product_service.Exception.DuplicateSkuException;
 import com.E_commerce.product_service.Exception.ProductNotFoundException;
 import com.E_commerce.product_service.Model.Product;
 import com.E_commerce.product_service.Repository.ProductRepository;
@@ -26,9 +27,17 @@ public class ProductService {
 
 
     public ProductResponse createProduct(ProductRequest request){
+        String skuCode=request.getSkuCode()
+        .trim()
+        .toUpperCase();
+        if(productRepository.existsBySkuCode(skuCode)){
+            throw new DuplicateSkuException(
+                "Product with SKU '" + skuCode + "' already exists"
+            );
+        }
         Product product= Product.builder()
                 .name(request.getName())
-                .skuCode(request.getSkuCode())
+                .skuCode(skuCode)
                 .price(request.getPrice())
                 .description(request.getDescription())
                 .brand(request.getBrand())
@@ -82,6 +91,12 @@ public class ProductService {
                     "Product not found with id: "+id
                 )
         );
+        String skuCode=request.getSkuCode().trim().toUpperCase();
+        if(productRepository.existsBySkuCodeAndIdNot(skuCode,id)){
+            throw new DuplicateSkuException(
+                "Product with SKU '" + skuCode + "' already exists"
+            );
+        }        
         product.setName(request.getName());
         product.setSkuCode(request.getSkuCode());
         product.setDescription(request.getDescription());
