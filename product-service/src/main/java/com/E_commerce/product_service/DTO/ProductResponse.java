@@ -16,9 +16,11 @@ import java.time.Instant;
 public class ProductResponse {
     private String id;
     private String name;
+    private String skuCode;
     private String description;
     private BigDecimal price;
     private String category;
     private String brand;
     private Instant createdAt;
+    private Instant updatedAt;
 }

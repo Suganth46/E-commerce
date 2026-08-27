@@ -48,7 +48,7 @@ public class ProductService {
             size=maxPageSize;
         }
         Pageable pageable=PageRequest.of(page, size);
-        return productRepository.findAll(pageable).map(this::mapToProductResponse);
+        return productRepository.findByActiveTrue(pageable).map(this::mapToProductResponse);
     }
 
     private ProductResponse mapToProductResponse(Product product) {
@@ -60,6 +60,8 @@ public class ProductService {
                 .createdAt(product.getCreatedAt())
                 .category(product.getCategory())
                 .brand(product.getBrand())
+                .skuCode(product.getSkuCode())
+                .updatedAt(product.getUpdatedAt())
                 .build();
     }
 
@@ -71,5 +73,36 @@ public class ProductService {
                 )
         );
         return mapToProductResponse(product);
+    }
+
+    public ProductResponse updateProductById(String id, ProductRequest request) {
+        Product product=productRepository.findById(id)
+        .orElseThrow(()->
+                new ProductNotFoundException(
+                    "Product not found with id: "+id
+                )
+        );
+        product.setName(request.getName());
+        product.setSkuCode(request.getSkuCode());
+        product.setDescription(request.getDescription());
+        product.setPrice(request.getPrice());
+        product.setCategory(request.getCategory());
+        product.setBrand(request.getBrand());
+        product.setUpdatedAt(Instant.now());
+        Product  updateProduct=productRepository.save(product);
+        return mapToProductResponse(updateProduct);
+    }
+
+    public void deleteProductById(String id) {
+         Product product=productRepository.findById(id)
+        .orElseThrow(()->
+                new ProductNotFoundException(
+                    "Product not found with id: "+id
+                )
+        );
+        product.setActive(false);
+        product.setUpdatedAt(Instant.now());
+
+        productRepository.save(product);
     }
 }

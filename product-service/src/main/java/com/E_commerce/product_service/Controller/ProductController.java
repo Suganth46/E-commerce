@@ -3,12 +3,13 @@ package com.E_commerce.product_service.Controller;
 import com.E_commerce.product_service.DTO.ProductRequest;
 import com.E_commerce.product_service.DTO.ProductResponse;
 import com.E_commerce.product_service.Service.ProductService;
+
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -20,7 +21,7 @@ public class ProductController {
 
     private final ProductService productService;
     @PostMapping
-    public ResponseEntity<ProductResponse> createProduct(@Validated @RequestBody ProductRequest request){
+    public ResponseEntity<ProductResponse> createProduct(@Valid @RequestBody ProductRequest request){
        ProductResponse productResponse=productService.createProduct(request);
        return ResponseEntity.status(HttpStatus.CREATED).body(productResponse);
     }
@@ -36,4 +37,16 @@ public class ProductController {
         ProductResponse productResponse=productService.findProductById(id);
         return ResponseEntity.ok(productResponse);
     } 
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ProductResponse> updateProductById(@PathVariable String id,@Valid @RequestBody ProductRequest request){
+        ProductResponse productResponse=productService.updateProductById(id,request);
+        return ResponseEntity.ok(productResponse);
+    }   
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteProductById(@PathVariable String id){
+        productService.deleteProductById(id);
+        return ResponseEntity.noContent().build();
+    }
 }
