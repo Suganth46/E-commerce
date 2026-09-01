@@ -4,7 +4,6 @@ import lombok.*;
 
 import java.math.BigDecimal;
 
-import org.springframework.validation.annotation.Validated;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
