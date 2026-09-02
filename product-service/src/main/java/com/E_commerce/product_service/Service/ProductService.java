@@ -1,15 +1,21 @@
 package com.E_commerce.product_service.Service;
 
+import com.E_commerce.product_service.Config.ProductPaginationProperties;
 import com.E_commerce.product_service.DTO.ProductRequest;
 import com.E_commerce.product_service.DTO.ProductResponse;
+import com.E_commerce.product_service.Exception.DuplicateSkuException;
+import com.E_commerce.product_service.Exception.ProductNotFoundException;
 import com.E_commerce.product_service.Model.Product;
 import com.E_commerce.product_service.Repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
+import java.time.Instant;
 
 @Slf4j
 @Service
@@ -17,28 +23,101 @@ import java.util.List;
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final ProductPaginationProperties paginationProperties;
 
 
-    public void createProduct(ProductRequest request){
+    public ProductResponse createProduct(ProductRequest request){
+        String skuCode=request.getSkuCode()
+        .trim()
+        .toUpperCase();
+        if(productRepository.existsBySkuCode(skuCode)){
+            throw new DuplicateSkuException(
+                "Product with SKU '" + skuCode + "' already exists"
+            );
+        }
         Product product= Product.builder()
                 .name(request.getName())
+                .skuCode(skuCode)
                 .price(request.getPrice())
                 .description(request.getDescription())
+                .brand(request.getBrand())
+                .category(request.getCategory())
+                .createdAt(Instant.now())
+                .updatedAt(Instant.now())
+                .active(true)
                 .build();
         productRepository.save(product);
         log.info("Product {} saved",product.getId());
+        return mapToProductResponse(product);
     }
 
-    public List<ProductResponse> findAllProduct() {
-        List<Product> products=productRepository.findAll();
-        return products.stream().map(this::mapToProductResponse).toList();
+    public Page<ProductResponse> findAllProduct(int page, int size) {
+        int maxPageSize=paginationProperties.getMaxPageSize();
+        if(size>maxPageSize){
+            size=maxPageSize;
+        }
+        Pageable pageable=PageRequest.of(page, size);
+        return productRepository.findByActiveTrue(pageable).map(this::mapToProductResponse);
     }
 
     private ProductResponse mapToProductResponse(Product product) {
         return  ProductResponse.builder()
+                .id(product.getId())
                 .name(product.getName())
                 .description(product.getDescription())
                 .price(product.getPrice())
+                .createdAt(product.getCreatedAt())
+                .category(product.getCategory())
+                .brand(product.getBrand())
+                .skuCode(product.getSkuCode())
+                .updatedAt(product.getUpdatedAt())
                 .build();
+    }
+
+    public ProductResponse findProductById(String id) {
+        Product product=productRepository.findById(id)
+        .orElseThrow(() ->
+                new ProductNotFoundException(
+                        "Product not found with id: " + id
+                )
+        );
+        return mapToProductResponse(product);
+    }
+
+    public ProductResponse updateProductById(String id, ProductRequest request) {
+        Product product=productRepository.findById(id)
+        .orElseThrow(()->
+                new ProductNotFoundException(
+                    "Product not found with id: "+id
+                )
+        );
+        String skuCode=request.getSkuCode().trim().toUpperCase();
+        if(productRepository.existsBySkuCodeAndIdNot(skuCode,id)){
+            throw new DuplicateSkuException(
+                "Product with SKU '" + skuCode + "' already exists"
+            );
+        }        
+        product.setName(request.getName());
+        product.setSkuCode(request.getSkuCode());
+        product.setDescription(request.getDescription());
+        product.setPrice(request.getPrice());
+        product.setCategory(request.getCategory());
+        product.setBrand(request.getBrand());
+        product.setUpdatedAt(Instant.now());
+        Product  updateProduct=productRepository.save(product);
+        return mapToProductResponse(updateProduct);
+    }
+
+    public void deleteProductById(String id) {
+         Product product=productRepository.findById(id)
+        .orElseThrow(()->
+                new ProductNotFoundException(
+                    "Product not found with id: "+id
+                )
+        );
+        product.setActive(false);
+        product.setUpdatedAt(Instant.now());
+
+        productRepository.save(product);
     }
 }
