@@ -24,7 +24,7 @@ public class SecurityConfig {
 
         UserDetails eurekaUser = User
                 .withUsername(username)
-                .password(password)
+                .password("{noop}" + password)
                 .authorities("USER")
                 .build();
 
